@@ -1,0 +1,11 @@
+huggingface-hub==0.17.2
+protobuf==4.24.3
+tokenizers==0.13.3
+--extra-index-url https://download.pytorch.org/whl/nightly/cpu
+torch
+torchaudio
+torchvision
+transformers==4.33.2
+fastapi==0.103.1
+uvicorn==0.23.2
+pydantic~=2.4.0
