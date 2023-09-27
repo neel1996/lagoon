@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+
+from auth import login
 from config import configuration, config_keys
 from inference import infer
 
@@ -17,6 +19,7 @@ app = FastAPI(
 def initialize():
     LLM()
     app.include_router(infer.router, tags=["inference"])
+    app.include_router(login.router, tags=["auth"])
 
 
 if __name__ == "__main__":
