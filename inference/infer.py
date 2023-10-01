@@ -7,7 +7,7 @@ from .model import InferenceRequest, InferenceResponse
 router = APIRouter()
 
 
-@router.post("/inference", response_model=InferenceResponse)
+@router.post("/api/inference", response_model=InferenceResponse)
 async def inference(request: InferenceRequest):
     llm = LLM()
     pipeline = llm.pipeline

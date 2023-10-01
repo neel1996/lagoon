@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 from logger import logger
 from supabase_client import SupabaseClient
 
-router = APIRouter()
+router = APIRouter(prefix="/api/auth")
 
 
 @router.get("/login", response_class=RedirectResponse)
