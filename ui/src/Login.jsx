@@ -1,9 +1,27 @@
 import { GitHub } from "@mui/icons-material";
 import { Button, Grid, Stack, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+import { useSessionValidator } from "./hooks/useSessionValidator";
+import { supabaseClient } from "./supabaseClient";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { validateSession } = useSessionValidator();
+  const { data, isError, isLoading } = validateSession;
+
+  if (isLoading) return null;
+
+  if (!isError && data) {
+    navigate("/");
+    return;
+  }
+
   const loginWithGithub = async () => {
-    await fetch("/api/auth/login");
+    await supabaseClient.auth.signInWithOAuth({
+        provider: "github",
+        options: {scopes: "repo"},
+    });
   };
 
   return (
