@@ -4,7 +4,7 @@ from llm.loader import LLM
 from logger import logger
 from .model import InferenceRequest, InferenceResponse
 
-router = APIRouter()
+router = APIRouter(prefix="/api")
 
 
 @router.post("/api/inference", response_model=InferenceResponse)
