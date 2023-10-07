@@ -1,6 +1,0 @@
-{
-  "log_level": "INFO",
-  "port": 8000,
-  "model": "meta-llama/Llama-2-7b-chat-hf",
-  "device": "cpu"
-}
