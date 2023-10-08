@@ -4,6 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useListRepos } from "../../github/useListRepos";
 import RepoName from "./RepoName";
 import UpdatedDate from "./UpdatedDate";
+import FloatingBot from "../FloatingBot";
 import Loader from "../../Loader";
 
 export default function RepoList() {
@@ -72,6 +73,7 @@ export default function RepoList() {
         margin: "20px auto",
       }}
     >
+      <FloatingBot />
       <DataGrid
         autoHeight
         columns={columns}

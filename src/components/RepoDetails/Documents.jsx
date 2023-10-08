@@ -109,7 +109,11 @@ Documents.propTypes = {
     PropTypes.shape({
       name: PropTypes.string,
       size: PropTypes.number,
-      action: PropTypes.string,
+      action: PropTypes.shape({
+        org: PropTypes.string,
+        repoName: PropTypes.string,
+        path: PropTypes.string,
+      }),
     })
   ),
   repoInfo: PropTypes.shape({
