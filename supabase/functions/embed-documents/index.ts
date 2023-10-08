@@ -33,6 +33,7 @@ serve(async (req) => {
     document_id: id,
     document_name,
     embeddings,
+    document_content,
   };
 
   const { count } = await supabaseClient
@@ -51,7 +52,7 @@ serve(async (req) => {
     console.log("Updating existing embeddings");
     const res = await supabaseClient
       .from("document_embeddings")
-      .update({ embeddings, updated_at: new Date() })
+      .update({ embeddings, document_content, updated_at: new Date() })
       .eq("document_id", id);
     error = res?.error;
   }
