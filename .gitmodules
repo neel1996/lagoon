@@ -1,0 +1,3 @@
+[submodule "inference-server/AutoGPTQ"]
+	path = inference-server/AutoGPTQ
+	url = https://github.com/PanQiWei/AutoGPTQ
