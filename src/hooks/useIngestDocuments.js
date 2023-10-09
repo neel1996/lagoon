@@ -16,8 +16,8 @@ export const useIngestDocuments = () => {
       for (const document of data) {
         documentPromises.push(
           insertNewDocument({
-            repoId: repository[0].id,
-            documentName: document.name,
+            repoId: repository.id,
+            documentName: document.path,
             content: document.content,
           })
         );

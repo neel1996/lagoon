@@ -1,4 +1,4 @@
-import { Grid, Typography } from "@mui/material";
+import { Alert, Grid, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 import { useListRepos } from "../../github/useListRepos";
@@ -54,11 +54,23 @@ export default function RepoList() {
       field: "ingestionStatus",
       headerName: "Ingestion Status",
       flex: 1,
-    },
-    {
-      field: "numberOfDocuments",
-      headerName: "Number of Documents",
-      flex: 1,
+      align: "center",
+      renderCell: (params) => {
+        const severity = params.value === "INGESTED" ? "success" : "info";
+        const label = params.value === "INGESTED" ? "Ingested" : "Not Ingested";
+
+        return (
+          <Alert
+            severity={severity}
+            sx={{
+              textAlign: "center",
+              width: "100%",
+            }}
+          >
+            <Typography variant="body1">{label}</Typography>
+          </Alert>
+        );
+      },
     },
   ];
 

@@ -43,6 +43,9 @@ export const useListDocuments = ({ org, repoName }) => {
             id: item.path,
             size: item.size,
             url: item.url,
+            status: {
+              path: item.path,
+            },
             action: {
               org,
               repoName,

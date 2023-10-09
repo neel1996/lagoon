@@ -1,14 +1,16 @@
 import { Box, Stack } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useListDocuments } from "../../github/useListDocuments";
 import Documents from "./Documents";
 import RepoCard from "./RepoCard";
 import Loader from "../../Loader";
+import { useRepositories } from "../../supabase/useRepositories";
 
 export default function RepoDetails() {
   const { org, name } = useParams();
   const { data, isLoading } = useListDocuments({ org, repoName: name });
+  const { getRepository } = useRepositories();
 
   const [repoInfo, setRepoInfo] = useState(null);
   const [documents, setDocuments] = useState(null);
@@ -16,14 +18,25 @@ export default function RepoDetails() {
   useEffect(() => {
     if (!data) return;
 
-    setRepoInfo({
-      name: data.repo.name,
-      org: data.repo.org,
-      defaultBranch: data.repo.defaultBranch,
-      commit: data.repo.head,
+    getRepository({ org, repoName: name }).then((repo) => {
+      setRepoInfo({
+        id: repo?.id,
+        name: data.repo.name,
+        org: data.repo.org,
+        defaultBranch: data.repo.defaultBranch,
+        commit: data.repo.head,
+      });
+      setDocuments(data.documents);
     });
-    setDocuments(data.documents);
-  }, [data, isLoading]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isLoading, name, org]);
+
+  const MemoizedRepoCard = useMemo(() => {
+    if (!repoInfo) return null;
+
+    return <RepoCard repoInfo={repoInfo} documentCount={documents.length} />;
+  }, [documents, repoInfo]);
 
   if (isLoading) {
     return <Loader />;
@@ -36,9 +49,7 @@ export default function RepoDetails() {
         margin: "20px",
       }}
     >
-      {repoInfo && (
-        <RepoCard repoInfo={repoInfo} documentCount={documents.length} />
-      )}
+      {MemoizedRepoCard}
       <Stack
         sx={{
           marginTop: "20px",

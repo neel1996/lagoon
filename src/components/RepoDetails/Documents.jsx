@@ -1,12 +1,18 @@
 import { Box, Button, Grid, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import IngestAllAction from "./IngestAllAction";
 import { useIngestDocuments } from "../../hooks/useIngestDocuments";
+import IngestionStatus from "./IngestionStatus";
+import { useDocuments } from "../../supabase/useDocuments";
+import { supabaseClient } from "../../supabaseClient";
 
 export default function Documents({ documents, repoInfo }) {
+  const [ingestedDocuments, setIngestedDocuments] = useState(null);
+  const [statusMap, setStatusMap] = useState({});
   const { ingestDocuments } = useIngestDocuments();
+  const { getIngestedDocumentsForRepo } = useDocuments();
 
   const formatSize = useCallback((size) => {
     if (size < 1024) return `${size} B`;
@@ -15,6 +21,34 @@ export default function Documents({ documents, repoInfo }) {
       return `${(size / (1024 * 1024)).toFixed(2)} MB`;
     return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   }, []);
+
+  useEffect(() => {
+    if (!repoInfo || !("id" in repoInfo)) return;
+
+    getIngestedDocumentsForRepo({
+      repoId: repoInfo.id,
+    }).then((data) => {
+      setIngestedDocuments(data);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repoInfo]);
+
+  useEffect(() => {
+    if (!repoInfo || !("id" in repoInfo)) return;
+
+    const repoId = repoInfo.id;
+    const channel = supabaseClient.channel(`ingestion_status:${repoId}`);
+
+    channel
+      .on("broadcast", { event: "ingestion_status" }, ({ payload }) => {
+        setStatusMap((prevStatusMap) => {
+          const newStatusMap = { ...prevStatusMap };
+          newStatusMap[payload.path] = payload.status;
+          return newStatusMap;
+        });
+      })
+      .subscribe();
+  }, [repoInfo]);
 
   const columns = [
     {
@@ -54,23 +88,55 @@ export default function Documents({ documents, repoInfo }) {
       },
     },
     {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      align: "center",
+      renderCell: (params) => {
+        const { path } = params.value;
+        let status = statusMap[path];
+        if (!status) {
+          status = "not_ingested";
+
+          if (ingestedDocuments && ingestedDocuments.includes(path)) {
+            status = "ingested";
+          }
+        }
+
+        return <IngestionStatus status={status} />;
+      },
+    },
+    {
       field: "action",
       headerName: "Ingest",
       flex: 1,
       renderCell: (params) => {
+        const { org, repoName, path } = params.value;
+
         return (
           <Button
             variant="outlined"
             onClick={() => {
-              const { org, repoName, path } = params.value;
+              setStatusMap((prevStatusMap) => {
+                const newStatusMap = { ...prevStatusMap };
+                newStatusMap[path] = "processing";
+                return newStatusMap;
+              });
+
               ingestDocuments({
                 org,
                 repo: repoName,
                 documents: [{ id: path }],
               });
             }}
+            disabled={statusMap[path] === "processing"}
           >
-            Ingest
+            {{
+              not_ingested: "Ingest",
+              ingested: "Re-ingest",
+              processing: "Ingesting...",
+              failed: "Ingest",
+            }[statusMap[path]] || "Ingest"}
           </Button>
         );
       },
@@ -117,6 +183,7 @@ Documents.propTypes = {
     })
   ),
   repoInfo: PropTypes.shape({
+    id: PropTypes.string,
     name: PropTypes.string,
     org: PropTypes.string,
     defaultBranch: PropTypes.string,

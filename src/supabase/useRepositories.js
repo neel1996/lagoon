@@ -16,7 +16,7 @@ export const useRepositories = () => {
       return null;
     }
 
-    return data;
+    return data[0];
   };
 
   const insertNewRepositoryIfNotExists = async ({ org, repo }) => {
@@ -35,10 +35,31 @@ export const useRepositories = () => {
       return null;
     }
 
+    if (!data || data.length === 0) {
+      return null;
+    }
+
+    return data[0];
+  };
+
+  const getAllRepositories = async () => {
+    const { data, error } = await supabaseClient.from(table).select("*");
+
+    if (error) {
+      console.error(error);
+      return null;
+    }
+
+    if (!data || data.length === 0) {
+      return null;
+    }
+
     return data;
   };
 
   return {
+    getRepository,
+    getAllRepositories,
     insertNewRepositoryIfNotExists,
   };
 };

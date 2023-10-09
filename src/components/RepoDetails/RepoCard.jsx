@@ -52,7 +52,7 @@ export default function RepoCard({ repoInfo, documentCount }) {
         }}
       >
         {Object.keys(repoInfo).map((key) => {
-          if (key === "name") return null;
+          if (!Object.keys(icons).includes(key)) return null;
           return (
             <Box
               key={key}

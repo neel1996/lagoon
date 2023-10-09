@@ -20,8 +20,10 @@ serve(async (req) => {
   console.log("Received request: ", data);
 
   const {
-    record: { id, document_name, document_content },
+    record: { id, document_name, document_content, repo_id },
   } = data;
+  const channel = supabaseClient.channel(`ingestion_status:${repo_id}`);
+  channel.subscribe();
 
   const output = await pipe(document_content, {
     pooling: "mean",
@@ -59,11 +61,24 @@ serve(async (req) => {
 
   if (error) {
     console.error(error);
+    broadcastStatus(document_name, "failed", channel);
     return error;
   }
 
+  broadcastStatus(document_name, "ingested", channel);
   console.log("Embeddings saved");
   return new Response(JSON.stringify({ payload }), {
     headers: { "Content-Type": "application/json" },
   });
 });
+
+function broadcastStatus(document_name: string, status: string, channel: any) {
+  channel.send({
+    type: "broadcast",
+    event: "ingestion_status",
+    payload: {
+      path: document_name,
+      status,
+    },
+  });
+}
