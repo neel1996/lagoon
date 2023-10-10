@@ -5,7 +5,11 @@ export const useLLMInference = () => {
   const infer = useMutation({
     mutationKey: "infer",
     mutationFn: async ({ context, query }) => {
-      return axios.post("/api/infer", { context, query });
+      let formattedContext = context
+        .replace(/\n/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      return axios.post("/api/infer", { context: formattedContext, query });
     },
   });
 
