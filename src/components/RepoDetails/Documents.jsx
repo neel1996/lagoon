@@ -143,6 +143,16 @@ export default function Documents({ documents, repoInfo }) {
     },
   ];
 
+  const handleIngestAll = () => {
+    documents.forEach((document) => {
+      setStatusMap((prevStatusMap) => {
+        const newStatusMap = { ...prevStatusMap };
+        newStatusMap[document.id] = "processing";
+        return newStatusMap;
+      });
+    });
+  };
+
   return (
     <Box>
       <Grid
@@ -159,6 +169,7 @@ export default function Documents({ documents, repoInfo }) {
           org={repoInfo.org}
           repo={repoInfo.name}
           documents={documents}
+          handleIngestAll={handleIngestAll}
         />
       </Grid>
       <DataGrid

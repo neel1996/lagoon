@@ -2,7 +2,12 @@ import { Button, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import { useIngestDocuments } from "../../hooks/useIngestDocuments";
 
-export default function IngestAllAction({ org, repo, documents }) {
+export default function IngestAllAction({
+  org,
+  repo,
+  documents,
+  handleIngestAll,
+}) {
   const { ingestDocuments } = useIngestDocuments();
 
   return (
@@ -17,6 +22,7 @@ export default function IngestAllAction({ org, repo, documents }) {
         },
       }}
       onClick={() => {
+        handleIngestAll();
         ingestDocuments({ org, repo, documents });
       }}
     >
@@ -29,4 +35,5 @@ IngestAllAction.propTypes = {
   org: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
   documents: PropTypes.arrayOf(PropTypes.object).isRequired,
+  handleIngestAll: PropTypes.func.isRequired,
 };
